@@ -1,0 +1,4 @@
+(sym_lib_table
+  (lib (name "ESP32-C3-MINI-1-N4")(type "Legacy")(uri "${KIPRJMOD}/lib/ESP32-C3-MINI-1-N4/ESP32-C3-MINI-1-N4.lib")(options "")(descr ""))
+  (lib (name "TS-1187A-B-A-B")(type "Legacy")(uri "${KIPRJMOD}/lib/TS-1187A-B-A-B/TS-1187A-B-A-B.lib")(options "")(descr ""))
+)
