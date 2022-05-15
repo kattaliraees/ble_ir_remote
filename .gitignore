@@ -31,7 +31,6 @@ _deps
 *.pch
 
 # Libraries
-*.lib
 *.a
 *.la
 *.lo
