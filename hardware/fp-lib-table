@@ -1,4 +1,5 @@
 (fp_lib_table
   (lib (name "ESP32-C3-MINI-1-N4")(type "KiCad")(uri "${KIPRJMOD}/lib/ESP32-C3-MINI-1-N4")(options "")(descr ""))
   (lib (name "TS-1187A-B-A-B")(type "KiCad")(uri "${KIPRJMOD}/lib/TS-1187A-B-A-B")(options "")(descr ""))
+  (lib (name "TYPE-C-31-M-12")(type "KiCad")(uri "${KIPRJMOD}/lib/TYPE-C-31-M-12")(options "")(descr ""))
 )
