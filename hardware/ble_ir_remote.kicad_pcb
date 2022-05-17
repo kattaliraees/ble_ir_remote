@@ -768,6 +768,11 @@
       (net 47 "Net-(J1-PadS1)") (pinfunction "SHIELD") (pintype "passive") (tstamp 17231e44-85ac-4aa3-a964-cf2197ceeee6))
     (pad "S4" thru_hole oval locked (at 4.32 0) (size 1.05 2.1) (drill oval 0.65 1.25) (layers *.Cu *.Mask)
       (net 47 "Net-(J1-PadS1)") (pinfunction "SHIELD") (pintype "passive") (tstamp 312b1e58-9b66-4b2d-a1b3-1fc15a2c69a6))
+    (model "${KIPRJMOD}/lib/TYPE-C-31-M-12/TYPE-C-31-M-12.step"
+      (offset (xyz 0 0 0))
+      (scale (xyz 1 1 1))
+      (rotate (xyz -90 0 0))
+    )
   )
 
   (footprint "TS-1187A-B-A-B:SW_TS-1187A-B-A-B" (layer "F.Cu")
