@@ -1468,7 +1468,6 @@
     )
   )
 
-
   (junction (at 107.315 104.14) (diameter 0) (color 0 0 0 0)
     (uuid 1747e936-01a2-46b7-847a-dc32d0cd12cc)
   )
@@ -2691,16 +2690,16 @@
     (pin "1" (uuid ed468c70-8ac2-40ed-84ac-2e68a1d7c09f))
   )
 
-  (symbol (lib_id "LED:TSAL4400") (at 204.47 74.93 270) (unit 1)
+  (symbol (lib_id "LED:TSAL4400") (at 204.47 72.39 90) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 6a63ca30-a110-43d0-baea-d4dc7eb4d5c8)
-    (property "Reference" "D1" (id 0) (at 208.28 72.5169 90)
-      (effects (font (size 1.27 1.27)) (justify left))
+    (property "Reference" "D1" (id 0) (at 207.01 72.2629 90)
+      (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Value" "TSAL6200" (id 1) (at 208.28 75.0569 90)
-      (effects (font (size 1.27 1.27)) (justify left))
+    (property "Value" "TSAL6200" (id 1) (at 207.01 74.8029 90)
+      (effects (font (size 1.27 1.27)) (justify right))
     )
-    (property "Footprint" "LED_THT:LED_D3.0mm_IRBlack" (id 2) (at 208.915 74.93 0)
+    (property "Footprint" "LED_THT:LED_D3.0mm_IRBlack" (id 2) (at 200.025 72.39 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "http://www.vishay.com/docs/81006/tsal4400.pdf" (id 3) (at 204.47 73.66 0)
@@ -3267,7 +3266,7 @@
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid c030f569-41ca-40ed-b543-9f41c1c76c1e)
     (property "Reference" "R9" (id 0) (at 263.525 100.33 90))
-    (property "Value" "10K" (id 1) (at 263.525 102.87 90))
+    (property "Value" "1K" (id 1) (at 263.525 102.87 90))
     (property "Footprint" "Resistor_SMD:R_0603_1608Metric" (id 2) (at 263.525 106.68 0)
       (effects (font (size 1.27 1.27)) hide)
     )
@@ -3791,7 +3790,7 @@
       (reference "R8") (unit 1) (value "10K") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/c030f569-41ca-40ed-b543-9f41c1c76c1e"
-      (reference "R9") (unit 1) (value "10K") (footprint "Resistor_SMD:R_0603_1608Metric")
+      (reference "R9") (unit 1) (value "1K") (footprint "Resistor_SMD:R_0603_1608Metric")
     )
     (path "/1cadfc47-f42d-445e-a6e7-32c4fdd5bfca"
       (reference "R10") (unit 1) (value "10K") (footprint "Resistor_SMD:R_0603_1608Metric")
