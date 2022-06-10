@@ -53,7 +53,7 @@ void app_main(void)
     // configure GPIO with the given settings
     // gpio_config(&io_conf);
 
-    gpio_pad_select_gpio(GPIO_NUM_8);
+    esp_rom_gpio_pad_select_gpio(GPIO_NUM_8);
     gpio_set_direction(GPIO_NUM_8, GPIO_MODE_OUTPUT);
 
     gpio_set_level(GPIO_NUM_8, 0);
@@ -73,7 +73,8 @@ void app_main(void)
 
     for (uint8_t i = 0; i < buttons.size(); i++)
     {
-        gpio_pad_select_gpio(buttons[i]);
+        
+        esp_rom_gpio_pad_select_gpio(buttons[i]);
         gpio_intr_enable(buttons[i]);
         gpio_set_direction(buttons[i], GPIO_MODE_INPUT);
         if (buttons[i] == GPIO_NUM_2)
@@ -114,3 +115,15 @@ void app_main(void)
         // vTaskDelay(5000 / portTICK_PERIOD_MS);
     }
 }
+/*
+
+    IrSender.sendNEC(sAddress, 0x88, sRepeats);
+    delay(1000);
+    IrSender.sendNEC(sAddress, 0x86, sRepeats);
+    delay(5000);
+    IrSender.sendNEC(sAddress, 0x81, sRepeats);
+    delay(1000);
+   DsAddress, 0x81, sRepeats);
+    d               lllll;;;;;;;;   ;   ;;;;;;;;;;tjkjthetlay(1000);
+    IrSender.sendNEC(sAddress, 0x81, sRepeats);fbd 
+*/
