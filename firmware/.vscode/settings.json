@@ -1,0 +1,17 @@
+{
+    "idf.adapterTargetName": "esp32c3",
+    "files.associations": {
+        "string": "cpp",
+        "iosfwd": "cpp",
+        "__bit_reference": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "unordered_map": "cpp",
+        "unordered_set": "cpp",
+        "algorithm": "cpp"
+    },
+    "idf.flashType": "UART",
+    "idf.port": "/dev/cu.usbmodem1101"
+}
