@@ -30,7 +30,7 @@ static void gpio_task_example(void *arg)
     {
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY))
         {
-            printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(GPIO_NUM_0));
+            printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level((gpio_num_t)io_num));
         }
     }
 }
@@ -87,7 +87,7 @@ void app_main(void)
             gpio_pulldown_en(buttons[i]);
             gpio_set_intr_type(buttons[i], GPIO_INTR_POSEDGE);
         };
-        gpio_isr_handler_add(buttons[i], gpio_isr_handler, (void *)0);
+        gpio_isr_handler_add(buttons[i], gpio_isr_handler, (void *)buttons[i]);
     }
 
     // gpio_pad_select_gpio(GPIO_NUM_0);
