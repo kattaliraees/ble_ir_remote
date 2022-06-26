@@ -18,7 +18,7 @@ extern "C"
 }
 
 static QueueHandle_t gpio_evt_queue = NULL;
-static rmt_channel_t example_tx_channel = RMT_CHANNEL_0;
+static rmt_channel_t ir_tx_channel = RMT_CHANNEL_0;
 static const char *TAG = "BLE_IR";
 
 static void init_gpio();
@@ -27,7 +27,6 @@ static void ir_tx_send_command(uint32_t cmd);
 
 static void IRAM_ATTR gpio_isr_handler(void *arg)
 {
-    gpio_set_level(GPIO_NUM_8, 0);
     uint32_t gpio_num = (uint32_t)arg;
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
@@ -100,6 +99,8 @@ static void gpio_task(void *arg)
             printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(triggered_gpio));
             if (gpio_get_level(triggered_gpio))
             {
+                gpio_set_level(GPIO_NUM_8, 0);
+
                 //Sending IR code for each press event
                 switch (triggered_gpio)
                 {
@@ -137,6 +138,7 @@ static void gpio_task(void *arg)
             {
                 if (!gpio_get_level(triggered_gpio))
                 {
+                    gpio_set_level(GPIO_NUM_8, 0);
                     ir_tx_send_command(0x88); // PROG1
                 }
             }
@@ -154,18 +156,18 @@ static void ir_tx_send_command(uint32_t cmd)
     rmt_item32_t *items = NULL;
     size_t length = 0;
     ir_builder_t *ir_builder = NULL;
-    rmt_config_t rmt_tx_config = RMT_DEFAULT_CONFIG_TX(GPIO_NUM_1, example_tx_channel);
+    rmt_config_t rmt_tx_config = RMT_DEFAULT_CONFIG_TX(GPIO_NUM_1, ir_tx_channel); //GPIO_NUM_1 - IR LED OUT
     rmt_tx_config.tx_config.carrier_en = true;
     rmt_config(&rmt_tx_config);
-    rmt_driver_install(example_tx_channel, 0, 0);
-    ir_builder_config_t ir_builder_config = IR_BUILDER_DEFAULT_CONFIG((ir_dev_t)example_tx_channel);
+    rmt_driver_install(ir_tx_channel, 0, 0);
+    ir_builder_config_t ir_builder_config = IR_BUILDER_DEFAULT_CONFIG((ir_dev_t)ir_tx_channel);
     ir_builder_config.flags |= IR_TOOLS_FLAGS_PROTO_EXT; // Using extended IR protocols (both NEC and RC5 have extended version)
+    //ir_builder_config.flags |= (IR_TOOLS_FLAGS_PROTO_EXT | IR_TOOLS_FLAGS_INVERSE);
     ir_builder = ir_builder_rmt_new_nec(&ir_builder_config);
     ESP_LOGI(TAG, "Send command 0x%x to address 0x%x", cmd, addr);
     ESP_ERROR_CHECK(ir_builder->build_frame(ir_builder, addr, cmd));
     ESP_ERROR_CHECK(ir_builder->get_result(ir_builder, &items, &length));
-    rmt_write_items(example_tx_channel, items, length, false);
+    rmt_write_items(ir_tx_channel, items, length, false);
     ir_builder->del(ir_builder);
-    rmt_driver_uninstall(example_tx_channel);
-    vTaskDelete(NULL);
+    rmt_driver_uninstall(ir_tx_channel);
 }
