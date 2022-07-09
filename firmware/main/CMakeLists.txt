@@ -2,8 +2,8 @@
 set(COMPONENT_REQUIRES )
 set(COMPONENT_PRIV_REQUIRES )
 
-set(COMPONENT_SRCS "ir_builder_rmt_nec.c" "ir_parser_rmt_nec.c" "ir_builder_rmt_nec.c" "main.cpp" "ir_code.cpp")
-set(COMPONENT_ADD_INCLUDEDIRS "")
+set(COMPONENT_SRCS "ble/scli.c" "ble/misc.c" "ble/gatt_svr.c" "ble/ble_main.c" "ir_builder_rmt_nec.c" "ir_parser_rmt_nec.c" "ir_builder_rmt_nec.c" "main.cpp" "ir_code.cpp")
+set(COMPONENT_ADD_INCLUDEDIRS "ble")
 
 register_component()
 

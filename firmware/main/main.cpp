@@ -9,6 +9,7 @@
 #include "esp_log.h"
 #include "driver/rmt.h"
 #include "ir_tools.h"
+#include "ble_main.h"
 
 #define ESP_INTR_FLAG_DEFAULT 0
 
@@ -31,8 +32,10 @@ static void IRAM_ATTR gpio_isr_handler(void *arg)
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
 
+
 void app_main(void)
 {
+    ble_init();
     init_gpio();
 
     while (1)
