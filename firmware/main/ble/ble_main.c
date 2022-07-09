@@ -356,7 +356,7 @@ void ble_init () {
     assert(rc == 0);
 
     /* Set the default device name. */
-    rc = ble_svc_gap_device_name_set("nimble-bleprph");
+    rc = ble_svc_gap_device_name_set("IR-Remote");
     assert(rc == 0);
 
     /* XXX Need to have template for store */
