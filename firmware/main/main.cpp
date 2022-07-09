@@ -24,7 +24,7 @@ static const char *TAG = "BLE_IR";
 
 static void init_gpio();
 static void gpio_task(void *arg);
-static void ir_tx_send_command(uint32_t cmd);
+static void ir_tx_send_command(uint32_t, uint32_t);
 
 static void IRAM_ATTR gpio_isr_handler(void *arg)
 {
@@ -97,6 +97,7 @@ static void gpio_task(void *arg)
     {
         if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY))
         {
+            uint32_t addr = 0x3FC0;
             gpio_num_t triggered_gpio = (gpio_num_t)io_num;
             vTaskDelay(100 / portTICK_PERIOD_MS); //De-bouncing delay
             printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(triggered_gpio));
@@ -108,28 +109,42 @@ static void gpio_task(void *arg)
                 switch (triggered_gpio)
                 {
                 case GPIO_NUM_0:
-                    ir_tx_send_command(0x88); // STANDBY
+                    ir_tx_send_command(0x3FC0, 0x7788); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command( 0x3FC0, 0x8877); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command( 0xC03F, 0x7788); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command( 0xC03F, 0x8877); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command(0x3FC0, 0x7788); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command( 0x3FC0, 0x8877); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command( 0xC03F, 0x7788); // STANDBY
+                    vTaskDelay(100);
+                    ir_tx_send_command( 0xC03F, 0x8877); // STANDBY
                     break;
                 // case GPIO_NUM_2:
                 //     ir_tx_send_command(0x88); // PROG1
                 //     break;
                 case GPIO_NUM_3:
-                    ir_tx_send_command(0x81); // VOL+
+                    ir_tx_send_command(addr, 0x81); // VOL+
                     break;
                 case GPIO_NUM_4:
-                    ir_tx_send_command(0x88); // MUTE
+                    ir_tx_send_command(addr, 0x88); // MUTE
                     break;
                 case GPIO_NUM_5:
-                    ir_tx_send_command(0x86); // RESET
+                    ir_tx_send_command(addr, 0x86); // RESET
                     break;
                 case GPIO_NUM_6:
-                    ir_tx_send_command(0x88); // BASS+
+                    ir_tx_send_command(addr, 0x88); // BASS+
                     break;
                 case GPIO_NUM_7:
-                    ir_tx_send_command(0x88); // BASS-
+                    ir_tx_send_command(addr, 0x88); // BASS-
                     break;
                 case GPIO_NUM_10:
-                    ir_tx_send_command(0x88); // VOL-
+                    ir_tx_send_command(addr, 0x88); // VOL-
                     break;
 
                 default:
@@ -142,7 +157,7 @@ static void gpio_task(void *arg)
                 if (!gpio_get_level(triggered_gpio))
                 {
                     gpio_set_level(GPIO_NUM_8, 0);
-                    ir_tx_send_command(0x88); // PROG1
+                    ir_tx_send_command(addr, 0x88); // PROG1
                 }
             }
             else
@@ -152,9 +167,9 @@ static void gpio_task(void *arg)
     }
 }
 
-static void ir_tx_send_command(uint32_t cmd)
+static void ir_tx_send_command(uint32_t addr, uint32_t cmd)
 {
-    uint32_t addr = 0x3FC0;
+    //uint32_t addr = 0x3FC0;
     // uint32_t cmd = 0x88;
     rmt_item32_t *items = NULL;
     size_t length = 0;
@@ -164,7 +179,7 @@ static void ir_tx_send_command(uint32_t cmd)
     rmt_config(&rmt_tx_config);
     rmt_driver_install(ir_tx_channel, 0, 0);
     ir_builder_config_t ir_builder_config = IR_BUILDER_DEFAULT_CONFIG((ir_dev_t)ir_tx_channel);
-    ir_builder_config.flags |= IR_TOOLS_FLAGS_PROTO_EXT; // Using extended IR protocols (both NEC and RC5 have extended version)
+    //ir_builder_config.flags |= IR_TOOLS_FLAGS_PROTO_EXT; // Using extended IR protocols (both NEC and RC5 have extended version)
     //ir_builder_config.flags |= (IR_TOOLS_FLAGS_PROTO_EXT | IR_TOOLS_FLAGS_INVERSE);
     ir_builder = ir_builder_rmt_new_nec(&ir_builder_config);
     ESP_LOGI(TAG, "Send command 0x%x to address 0x%x", cmd, addr);
