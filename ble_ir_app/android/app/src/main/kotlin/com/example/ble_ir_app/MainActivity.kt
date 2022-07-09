@@ -1,4 +1,4 @@
-package com.example.ble_ir
+package com.example.ble_ir_app
 
 import io.flutter.embedding.android.FlutterActivity
 
