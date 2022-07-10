@@ -30,10 +30,8 @@ void app_main(void)
 
     while (1)
     {
-        // gpio_set_level(GPIO_NUM_1, 1);
-        vTaskDelay(5);
-        // gpio_set_level(GPIO_NUM_1, 0);
-        vTaskDelay(5);
+        vTaskDelay(40);
+        gpio_set_level(GPIO_NUM_8, 1);
     }
 }
 
@@ -42,7 +40,7 @@ void init_gpio()
     // heartbeat LED Setup
     esp_rom_gpio_pad_select_gpio(GPIO_NUM_8);
     gpio_set_direction(GPIO_NUM_8, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_8, 1);
+    gpio_set_level(GPIO_NUM_8, 0);
 
     // Pushbutton setup
     gpio_num_t buttons[8] = {
@@ -95,13 +93,16 @@ static void gpio_task(void *arg)
             printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(triggered_gpio));
             if (gpio_get_level(triggered_gpio))
             {
-                // gpio_set_level(GPIO_NUM_8, 0);
+                gpio_set_level(GPIO_NUM_8, 0);
 
                 // Sending IR code for each press event
                 switch (triggered_gpio)
                 {
                 case GPIO_NUM_0:
                     ir_tx_send_command(0x3FC0, 0x7788); // STANDBY
+                    //ir_tx_send_command(0xC03F, 0x7788); // STANDBY
+                    //ir_tx_send_command(0x3FC0, 0x8877); // STANDBY
+                    //ir_tx_send_command(0xC03F, 0x8877); // STANDBY
                     break;
                 // case GPIO_NUM_2:
                 //     ir_tx_send_command(0x88); // PROG1
@@ -134,6 +135,7 @@ static void gpio_task(void *arg)
             {
                 if (!gpio_get_level(triggered_gpio))
                 {
+                    gpio_set_level(GPIO_NUM_8, 0);
                     gpio_set_level(GPIO_NUM_8, 0);
                     ir_tx_send_command(addr, 0x88); // PROG1
                 }
