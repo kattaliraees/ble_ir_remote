@@ -19,8 +19,13 @@
         "string_view": "c",
         "freertos.h": "c",
         "ir_tools.h": "c",
-        "rmt.h": "c"
+        "rmt.h": "c",
+        "coroutine": "c",
+        "memory": "c"
     },
     "idf.flashType": "UART",
-    "idf.port": "/dev/cu.usbmodem1101"
+    "idf.port": "/dev/cu.usbmodem101",
+    "idf.openOcdConfigs": [
+        "board/esp32c3-builtin.cfg"
+    ]
 }

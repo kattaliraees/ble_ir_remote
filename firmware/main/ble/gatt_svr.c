@@ -25,6 +25,7 @@
 #include "services/gap/ble_svc_gap.h"
 #include "services/gatt/ble_svc_gatt.h"
 #include "bleprph.h"
+#include "services/ans/ble_svc_ans.h"
 
 /**
  * The vendor specific security test service consists of two characteristics:
@@ -67,13 +68,13 @@ static const struct ble_gatt_svc_def gatt_svr_svcs[] = {
                 /*** Characteristic: Random number generator. */
                 .uuid = &gatt_svr_chr_sec_test_rand_uuid.u,
                 .access_cb = gatt_svr_chr_access_sec_test,
-                .flags = BLE_GATT_CHR_F_READ,
+                .flags = BLE_GATT_CHR_F_READ | BLE_GATT_CHR_F_READ_ENC,
             }, {
                 /*** Characteristic: Static value. */
                 .uuid = &gatt_svr_chr_sec_test_static_uuid.u,
                 .access_cb = gatt_svr_chr_access_sec_test,
                 .flags = BLE_GATT_CHR_F_READ |
-                BLE_GATT_CHR_F_WRITE,
+                BLE_GATT_CHR_F_WRITE | BLE_GATT_CHR_F_WRITE_ENC,
             }, {
                 0, /* No more characteristics in this service. */
             }
@@ -195,6 +196,7 @@ gatt_svr_init(void)
 
     ble_svc_gap_init();
     ble_svc_gatt_init();
+    ble_svc_ans_init();
 
     rc = ble_gatts_count_cfg(gatt_svr_svcs);
     if (rc != 0) {

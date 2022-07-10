@@ -1,4 +1,23 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *  http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 
+#include "esp_log.h"
 #include "nvs_flash.h"
 /* BLE */
 #include "esp_nimble_hci.h"
@@ -10,7 +29,14 @@
 #include "services/gap/ble_svc_gap.h"
 #include "bleprph.h"
 
-
+#if CONFIG_EXAMPLE_EXTENDED_ADV
+static uint8_t ext_adv_pattern_1[] = {
+    0x02, 0x01, 0x06,
+    0x03, 0x03, 0xab, 0xcd,
+    0x03, 0x03, 0x18, 0x11,
+    0x11, 0X09, 'n', 'i', 'm', 'b', 'l', 'e', '-', 'b', 'l', 'e', 'p', 'r', 'p', 'h', '-', 'e',
+};
+#endif
 
 static const char *tag = "NimBLE_BLE_PRPH";
 static int bleprph_gap_event(struct ble_gap_event *event, void *arg);
@@ -45,6 +71,62 @@ bleprph_print_conn_desc(struct ble_gap_conn_desc *desc)
                 desc->sec_state.bonded);
 }
 
+#if CONFIG_EXAMPLE_EXTENDED_ADV
+/**
+ * Enables advertising with the following parameters:
+ *     o General discoverable mode.
+ *     o Undirected connectable mode.
+ */
+static void
+ext_bleprph_advertise(void)
+{
+    struct ble_gap_ext_adv_params params;
+    struct os_mbuf *data;
+    uint8_t instance = 1;
+    int rc;
+
+    /* use defaults for non-set params */
+    memset (&params, 0, sizeof(params));
+
+    /* enable connectable advertising */
+    params.connectable = 1;
+    params.scannable = 1;
+    params.legacy_pdu = 1;
+
+    /* advertise using random addr */
+    params.own_addr_type = BLE_OWN_ADDR_PUBLIC;
+
+    params.primary_phy = BLE_HCI_LE_PHY_1M;
+    params.secondary_phy = BLE_HCI_LE_PHY_2M;
+    //params.tx_power = 127;
+    params.sid = 1;
+
+    params.itvl_min = BLE_GAP_ADV_FAST_INTERVAL1_MIN;
+    params.itvl_max = BLE_GAP_ADV_FAST_INTERVAL1_MIN;
+
+    /* configure instance 0 */
+    rc = ble_gap_ext_adv_configure(instance, &params, NULL,
+                                   bleprph_gap_event, NULL);
+    assert (rc == 0);
+
+    /* in this case only scan response is allowed */
+
+    /* get mbuf for scan rsp data */
+    data = os_msys_get_pkthdr(sizeof(ext_adv_pattern_1), 0);
+    assert(data);
+
+    /* fill mbuf with scan rsp data */
+    rc = os_mbuf_append(data, ext_adv_pattern_1, sizeof(ext_adv_pattern_1));
+    assert(rc == 0);
+
+    rc = ble_gap_ext_adv_set_data(instance, data);
+    assert (rc == 0);
+
+    /* start advertising */
+    rc = ble_gap_ext_adv_start(instance, 0, 0);
+    assert (rc == 0);
+}
+#else
 /**
  * Enables advertising with the following parameters:
  *     o General discoverable mode.
@@ -110,6 +192,7 @@ bleprph_advertise(void)
         return;
     }
 }
+#endif
 
 /**
  * The nimble host executes this callback when a GAP event occurs.  The
@@ -147,7 +230,11 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
 
         if (event->connect.status != 0) {
             /* Connection failed; resume advertising. */
+#if CONFIG_EXAMPLE_EXTENDED_ADV
+            ext_bleprph_advertise();
+#else
             bleprph_advertise();
+#endif
         }
         return 0;
 
@@ -157,7 +244,11 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
         MODLOG_DFLT(INFO, "\n");
 
         /* Connection terminated; resume advertising. */
+#if CONFIG_EXAMPLE_EXTENDED_ADV
+        ext_bleprph_advertise();
+#else
         bleprph_advertise();
+#endif
         return 0;
 
     case BLE_GAP_EVENT_CONN_UPDATE:
@@ -173,7 +264,9 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
     case BLE_GAP_EVENT_ADV_COMPLETE:
         MODLOG_DFLT(INFO, "advertise complete; reason=%d",
                     event->adv_complete.reason);
+#if !CONFIG_EXAMPLE_EXTENDED_ADV
         bleprph_advertise();
+#endif
         return 0;
 
     case BLE_GAP_EVENT_ENC_CHANGE:
@@ -270,7 +363,7 @@ bleprph_gap_event(struct ble_gap_event *event, void *arg)
     return 0;
 }
 
-void
+static void
 bleprph_on_reset(int reason)
 {
     MODLOG_DFLT(ERROR, "Resetting state; reason=%d\n", reason);
@@ -281,6 +374,7 @@ bleprph_on_sync(void)
 {
     int rc;
 
+    /* Make sure we have proper identity address set (public preferred) */
     rc = ble_hs_util_ensure_addr(0);
     assert(rc == 0);
 
@@ -299,7 +393,11 @@ bleprph_on_sync(void)
     print_addr(addr_val);
     MODLOG_DFLT(INFO, "\n");
     /* Begin advertising. */
+#if CONFIG_EXAMPLE_EXTENDED_ADV
+    ext_bleprph_advertise();
+#else
     bleprph_advertise();
+#endif
 }
 
 void bleprph_host_task(void *param)
@@ -311,10 +409,8 @@ void bleprph_host_task(void *param)
     nimble_port_freertos_deinit();
 }
 
-
-
-void ble_init () {
-
+void ble_init ()
+{
     int rc;
 
     /* Initialize NVS — it is used to store PHY calibration data */
@@ -334,7 +430,7 @@ void ble_init () {
     ble_hs_cfg.gatts_register_cb = gatt_svr_register_cb;
     ble_hs_cfg.store_status_cb = ble_store_util_status_rr;
 
-    ble_hs_cfg.sm_io_cap = 0; //CONFIG_EXAMPLE_IO_TYPE;
+    ble_hs_cfg.sm_io_cap = 0;
 #ifdef CONFIG_EXAMPLE_BONDING
     ble_hs_cfg.sm_bonding = 1;
 #endif
