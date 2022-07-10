@@ -10,7 +10,16 @@
         "set": "cpp",
         "unordered_map": "cpp",
         "unordered_set": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "ble_main.h": "c",
+        "stdlib.h": "c",
+        "__locale": "c",
+        "__string": "c",
+        "regex": "c",
+        "string_view": "c",
+        "freertos.h": "c",
+        "ir_tools.h": "c",
+        "rmt.h": "c"
     },
     "idf.flashType": "UART",
     "idf.port": "/dev/cu.usbmodem1101"

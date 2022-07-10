@@ -97,10 +97,12 @@ static esp_err_t nec_builder_make_end(ir_builder_t *builder)
 
 static esp_err_t nec_build_frame(ir_builder_t *builder, uint32_t address, uint32_t command)
 {
+    ESP_LOGI("NEC", "Send command 0x%x to address 0x%x", command, address);
     esp_err_t ret = ESP_OK;
     nec_builder_t *nec_builder = __containerof(builder, nec_builder_t, parent);
     if (!nec_builder->flags & IR_TOOLS_FLAGS_PROTO_EXT) {
         uint8_t low_byte = address & 0xFF;
+        ESP_LOGI("NEC", "2 Send command 0x%x to address 0x%x", command, address);
         uint8_t high_byte = (address >> 8) & 0xFF;
         NEC_CHECK(low_byte == (~high_byte & 0xFF), "address not match standard NEC protocol", err, ESP_ERR_INVALID_ARG);
         low_byte = command & 0xFF;

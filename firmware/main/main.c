@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <array>
 #include <stdlib.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -12,11 +11,6 @@
 #include "ble_main.h"
 
 #define ESP_INTR_FLAG_DEFAULT 0
-
-extern "C"
-{
-    void app_main(void);
-}
 
 static QueueHandle_t gpio_evt_queue = NULL;
 static rmt_channel_t ir_tx_channel = RMT_CHANNEL_0;
@@ -32,16 +26,27 @@ static void IRAM_ATTR gpio_isr_handler(void *arg)
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
 
-
 void app_main(void)
 {
-    ble_init();
+    // ble_init();
     init_gpio();
+
+      // uint32_t addr = 0x3FC0;
+    //  uint32_t cmd = 0x88;
+
+    rmt_config_t rmt_tx_config = RMT_DEFAULT_CONFIG_TX(GPIO_NUM_1, ir_tx_channel); //GPIO_NUM_1 - IR LED OUT
+    rmt_tx_config.tx_config.carrier_en = true;
+    rmt_config(&rmt_tx_config);
+    rmt_driver_install(ir_tx_channel, 0, 0);
+    // ir_builder_config.flags |= IR_TOOLS_FLAGS_PROTO_EXT; // Using extended IR protocols (both NEC and RC5 have extended version)
+    // ir_builder_config.flags |= (IR_TOOLS_FLAGS_PROTO_EXT | IR_TOOLS_FLAGS_INVERSE);
 
     while (1)
     {
-        gpio_set_level(GPIO_NUM_8, 1);
-        vTaskDelay(2000 / portTICK_PERIOD_MS);
+        // gpio_set_level(GPIO_NUM_1, 1);
+        vTaskDelay(5);
+        // gpio_set_level(GPIO_NUM_1, 0);
+        vTaskDelay(5);
     }
 }
 
@@ -50,10 +55,15 @@ void init_gpio()
     // heartbeat LED Setup
     gpio_pad_select_gpio(GPIO_NUM_8);
     gpio_set_direction(GPIO_NUM_8, GPIO_MODE_OUTPUT);
-    gpio_set_level(GPIO_NUM_8, 0);
+    gpio_set_level(GPIO_NUM_8, 1);
+
+    // heartbeat LED Setup
+    gpio_pad_select_gpio(GPIO_NUM_1);
+    gpio_set_direction(GPIO_NUM_1, GPIO_MODE_OUTPUT);
+    gpio_set_level(GPIO_NUM_1, 0);
 
     // Pushbutton setup
-    std::array<gpio_num_t, 8> buttons = {
+    gpio_num_t buttons[8] = {
         GPIO_NUM_0,
         GPIO_NUM_2,
         GPIO_NUM_3,
@@ -66,7 +76,7 @@ void init_gpio()
     // install gpio isr service
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
 
-    for (uint8_t i = 0; i < buttons.size(); i++)
+    for (uint8_t i = 0; i < 8; i++)
     {
 
         gpio_pad_select_gpio(buttons[i]);
@@ -99,31 +109,31 @@ static void gpio_task(void *arg)
         {
             uint32_t addr = 0x3FC0;
             gpio_num_t triggered_gpio = (gpio_num_t)io_num;
-            vTaskDelay(100 / portTICK_PERIOD_MS); //De-bouncing delay
+            vTaskDelay(100 / portTICK_PERIOD_MS); // De-bouncing delay
             printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(triggered_gpio));
             if (gpio_get_level(triggered_gpio))
             {
-                gpio_set_level(GPIO_NUM_8, 0);
+                // gpio_set_level(GPIO_NUM_8, 0);
 
-                //Sending IR code for each press event
+                // Sending IR code for each press event
                 switch (triggered_gpio)
                 {
                 case GPIO_NUM_0:
                     ir_tx_send_command(0x3FC0, 0x7788); // STANDBY
                     vTaskDelay(100);
-                    ir_tx_send_command( 0x3FC0, 0x8877); // STANDBY
+                    ir_tx_send_command(0x3FC0, 0x8877); // STANDBY
                     vTaskDelay(100);
-                    ir_tx_send_command( 0xC03F, 0x7788); // STANDBY
+                    ir_tx_send_command(0xC03F, 0x7788); // STANDBY
                     vTaskDelay(100);
-                    ir_tx_send_command( 0xC03F, 0x8877); // STANDBY
+                    ir_tx_send_command(0xC03F, 0x8877); // STANDBY
                     vTaskDelay(100);
                     ir_tx_send_command(0x3FC0, 0x7788); // STANDBY
                     vTaskDelay(100);
-                    ir_tx_send_command( 0x3FC0, 0x8877); // STANDBY
+                    ir_tx_send_command(0x3FC0, 0x8877); // STANDBY
                     vTaskDelay(100);
-                    ir_tx_send_command( 0xC03F, 0x7788); // STANDBY
+                    ir_tx_send_command(0xC03F, 0x7788); // STANDBY
                     vTaskDelay(100);
-                    ir_tx_send_command( 0xC03F, 0x8877); // STANDBY
+                    ir_tx_send_command(0xC03F, 0x8877); // STANDBY
                     break;
                 // case GPIO_NUM_2:
                 //     ir_tx_send_command(0x88); // PROG1
@@ -169,23 +179,15 @@ static void gpio_task(void *arg)
 
 static void ir_tx_send_command(uint32_t addr, uint32_t cmd)
 {
-    //uint32_t addr = 0x3FC0;
-    // uint32_t cmd = 0x88;
     rmt_item32_t *items = NULL;
     size_t length = 0;
     ir_builder_t *ir_builder = NULL;
-    rmt_config_t rmt_tx_config = RMT_DEFAULT_CONFIG_TX(GPIO_NUM_1, ir_tx_channel); //GPIO_NUM_1 - IR LED OUT
-    rmt_tx_config.tx_config.carrier_en = true;
-    rmt_config(&rmt_tx_config);
-    rmt_driver_install(ir_tx_channel, 0, 0);
     ir_builder_config_t ir_builder_config = IR_BUILDER_DEFAULT_CONFIG((ir_dev_t)ir_tx_channel);
-    //ir_builder_config.flags |= IR_TOOLS_FLAGS_PROTO_EXT; // Using extended IR protocols (both NEC and RC5 have extended version)
-    //ir_builder_config.flags |= (IR_TOOLS_FLAGS_PROTO_EXT | IR_TOOLS_FLAGS_INVERSE);
     ir_builder = ir_builder_rmt_new_nec(&ir_builder_config);
     ESP_LOGI(TAG, "Send command 0x%x to address 0x%x", cmd, addr);
     ESP_ERROR_CHECK(ir_builder->build_frame(ir_builder, addr, cmd));
     ESP_ERROR_CHECK(ir_builder->get_result(ir_builder, &items, &length));
     rmt_write_items(ir_tx_channel, items, length, false);
     ir_builder->del(ir_builder);
-    rmt_driver_uninstall(ir_tx_channel);
+    //rmt_driver_uninstall(ir_tx_channel);
 }
