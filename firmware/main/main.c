@@ -22,6 +22,8 @@ static void IRAM_ATTR gpio_isr_handler(void *arg)
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
 
+uint8_t ir_test_code = 0x80;
+
 void app_main(void)
 {
     ble_init();
@@ -114,7 +116,22 @@ static void gpio_task(void *arg)
                     ir_tx_send_command(addr, 0x7986); // RESET
                     break;
                 case GPIO_NUM_6:
-                    ir_tx_send_command(addr, 0x7887); // BASS+
+                    //ir_tx_send_command(addr, 0x7887); // BASS+
+                    ir_test_code = ir_test_code + 1;
+                    if (ir_test_code != 0x88 && ir_test_code != 0x81 && ir_test_code != 0x85 && ir_test_code != 0x86)
+                    {
+                        uint16_t ir_cmd = 0x00;
+                        uint8_t MSB = ~ir_test_code;
+                        uint8_t LSB = ir_test_code;
+                        ir_cmd = MSB << 8;
+                        ir_cmd = ir_cmd | LSB;
+                        ESP_LOGI("TEST", "Sending IR Test cmd - %x \n", ir_cmd);
+                        ir_tx_send_command(addr, ir_cmd); // BASS+
+                        ir_tx_send_command(addr, ir_cmd); // BASS+
+                        ir_tx_send_command(addr, ir_cmd); // BASS+
+                    }
+                    
+                    
                     break;
                 case GPIO_NUM_7:
                     ir_tx_send_command(addr, 0x7689); // BASS-
