@@ -99,33 +99,29 @@ static void gpio_task(void *arg)
                 switch (triggered_gpio)
                 {
                 case GPIO_NUM_0:
-                    ir_tx_send_command(0x3FC0, 0x7788); // STANDBY
-                    //ir_tx_send_command(0xC03F, 0x7788); // STANDBY
-                    //ir_tx_send_command(0x3FC0, 0x8877); // STANDBY
-                    //ir_tx_send_command(0xC03F, 0x8877); // STANDBY
+                    ir_tx_send_command(addr, 0x7788); // StandBy
                     break;
                 // case GPIO_NUM_2:
                 //     ir_tx_send_command(0x88); // PROG1
                 //     break;
                 case GPIO_NUM_3:
-                    ir_tx_send_command(addr, 0x81); // VOL+
+                    ir_tx_send_command(addr, 0x7E81); // VOL+
                     break;
                 case GPIO_NUM_4:
-                    ir_tx_send_command(addr, 0x88); // MUTE
+                    ir_tx_send_command(addr, 0x7A85); // MUTE
                     break;
                 case GPIO_NUM_5:
-                    ir_tx_send_command(addr, 0x86); // RESET
+                    ir_tx_send_command(addr, 0x7986); // RESET
                     break;
                 case GPIO_NUM_6:
-                    ir_tx_send_command(addr, 0x88); // BASS+
+                    ir_tx_send_command(addr, 0x7887); // BASS+
                     break;
                 case GPIO_NUM_7:
-                    ir_tx_send_command(addr, 0x88); // BASS-
+                    ir_tx_send_command(addr, 0x7689); // BASS-
                     break;
                 case GPIO_NUM_10:
-                    ir_tx_send_command(addr, 0x88); // VOL-
+                    ir_tx_send_command(addr, 0x7F80); // VOL-
                     break;
-
                 default:
                     break;
                 }
