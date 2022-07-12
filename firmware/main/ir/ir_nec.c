@@ -213,6 +213,5 @@ void ir_send_nec(uint16_t addr, uint16_t cmd)
         .address = addr,
         .command = cmd,
     };
-    ESP_LOGI(TAG, "sending %d", scan_code.address);
     ESP_ERROR_CHECK(rmt_transmit(tx_channel, nec_encoder, &scan_code, sizeof(scan_code), &transmit_config));
 }

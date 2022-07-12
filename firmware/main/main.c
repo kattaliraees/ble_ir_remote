@@ -92,7 +92,7 @@ static void gpio_task(void *arg)
             uint32_t addr = 0x3FC0;
             gpio_num_t triggered_gpio = (gpio_num_t)io_num;
             vTaskDelay(100 / portTICK_PERIOD_MS); // De-bouncing delay
-            printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(triggered_gpio));
+            //printf("GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(triggered_gpio));
             if (gpio_get_level(triggered_gpio))
             {
                 gpio_set_level(GPIO_NUM_8, 0);
