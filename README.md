@@ -2,5 +2,5 @@
 IR remote with BLE interface - Under development
 
 - [x] Hardware
-- [ ] Firmware
+- [x] Firmware
 - [ ] Mobile App
